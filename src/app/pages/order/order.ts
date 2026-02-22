@@ -24,6 +24,7 @@ export class Order {
 
   public orderId: any = signal(null);
   public calculationResult: any = signal(null);
+  public isCalculating = signal(false);
 
   constructor(private formBuilder: FormBuilder, private deliveryApi: DeliveryApi) {
     this.routeForm = this.formBuilder.group({
@@ -63,8 +64,10 @@ export class Order {
 
   public calculate() {
     this.calculationResult.set(null);
+    this.isCalculating.set(true);
 
     if (!this.map || this.routeForm.invalid) {
+      this.isCalculating.set(false);
       return;
     }
 
@@ -102,6 +105,7 @@ export class Order {
           duration = Math.ceil(duration - (duration * 0.30));
         }
 
+        this.isCalculating.set(false);
         this.calculationResult.set({
           from,
           to,
@@ -120,6 +124,7 @@ export class Order {
     this.mapRoute.model.events.add('requestfail', () => this.failedCalculation());
   }
   private failedCalculation() {
+    this.isCalculating.set(false);
     this.calculationResult.set(null);
     alert('Не удалось построить маршрут. Проверьте адреса и выбранные параметры.');
   }
